@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Query, status
 from app.common.schemas.ApiResponseSchema import PaginatedResponseSchema, PaginationInfo, ResponseSchema
-from app.core.DependencyContainer import getAdminAuthService, getCurrentAdmin
+from app.core.dependencies import getAdminAuthService, getCurrentAdmin
 from app.modules.auth.dto.UserTableDto import UserTableDto
 from app.modules.auth.schemas.AuditSchema import AuditLogResponse
 from app.modules.auth.schemas.AuthSchema import MessageResponseSchema, UserProfileResponse, UserStatusSchema
