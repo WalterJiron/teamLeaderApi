@@ -142,3 +142,66 @@ When the application is running:
 * **Readiness Probe:** `GET http://localhost:8000/health/ready` (Verifies PostgreSQL and Redis connectivity)
 * **Interactive API Documentation (Swagger UI):** [http://localhost:8000/docs](http://localhost:8000/docs)
 * **OpenAPI Specification:** [http://localhost:8000/openapi.json](http://localhost:8000/openapi.json)
+
+### Jira Cloud Integration and Team Assessment
+
+The API connects an internal TeamLeader project to a Jira Cloud project, verifies the credentials before saving, and synchronizes current issues and recent delivery history on demand. All endpoints require a TeamLeader bearer token.
+
+#### Connect Jira
+
+Create an Atlassian API token for the Jira account. The account must be able to browse the Jira project. To include project roles, it also needs permission to read the project's roles. Never commit or share the API token in source control or chat.
+
+Register the integration as a team manager:
+
+```http
+POST /api/v1/jira-integrations
+Authorization: Bearer <teamleader-access-token>
+Content-Type: application/json
+```
+
+```json
+{
+  "project_id": 1,
+  "jira_base_url": "https://your-tenant.atlassian.net",
+  "jira_project_key": "TEAM",
+  "jira_email": "jira-account@example.com",
+  "api_token": "REPLACE_WITH_YOUR_ATLASSIAN_API_TOKEN",
+  "project_deadline": "2026-12-31"
+}
+```
+
+`project_deadline` is optional. Jira Cloud does not expose a standard project-level deadline; when omitted, synchronization uses the nearest due date among unresolved issues. If neither source has a deadline, the response warns that imminent-deadline risk could not be evaluated.
+
+The API verifies access to the project before creating the tenant-scoped integration. It encrypts the API token at rest with `CREDENTIALS_ENCRYPTION_KEY`; responses only contain a masked token. Duplicate Jira projects and duplicate internal-project links are rejected.
+
+List integrations with `GET /api/v1/jira-integrations`. A team manager can trigger a live synchronization and assessment with:
+
+```http
+POST /api/v1/jira-integrations/{integration_id}/syncs
+Authorization: Bearer <teamleader-access-token>
+```
+
+The sync fetches project issues from Jira's REST API with token-based pagination, excludes subtasks, maps status/resolution, assignees, issue due dates and Jira project roles, then runs the assessment below. It reads the last 12 complete UTC weeks of resolution history and the current partial week directly from Jira on each sync; TeamLeader does not need a caller to resubmit that history. Page size is capped at 100 and a sync fails rather than returning partial results if the 100-page limit is exceeded.
+
+If Jira does not allow access to project roles, the sync still returns issue metrics, labels members' role as unavailable, and includes a warning. Jira Cloud custom domains and Jira Server/Data Center URLs are not accepted by this version; the URL must be an HTTPS `*.atlassian.net` tenant.
+
+#### Assessment rules and AI response
+
+The sync response contains a structured `assessment` and any `warnings`. The authenticated `POST /api/v1/metrics/delay-risk-assessment` endpoint remains available for clients that already have normalized metrics. Both use the same deterministic assessment logic and include `agent_message`, a concise summary for an AI agent.
+
+* **Delay risk:** `total_tasks`, `unresolved_tasks`, and `remaining_days` determine the tier. One to three unresolved tasks among more than eight is low risk; four to six among more than twelve is low-medium; exactly half unresolved is medium; more than half is medium-high, or high when fewer than two days remain. If no deadline is known, deadline-specific escalation is not inferred.
+* **Member with the most tasks:** the assessment returns `member_with_most_tasks` and `member_with_most_pending`, each including the Jira member name and role. Total `assigned_tasks` are used when available for every member; otherwise unresolved-task count is used, explained by `member_task_count_basis`. When multiple Jira roles apply, they are returned together.
+* **Productivity:** completed Jira issues are grouped by week. The assessment compares current tasks/day against the arithmetic mean of the per-day rates from the previous 12 complete UTC weeks. The `productivity` object includes `historical_periods`, `historical_average_tasks_per_day`, `historical_average_days_per_task`, `current_tasks_per_day`, `is_below_historical_average`, and a textual `comparison`. If there are no historical completions, no baseline is claimed.
+* **Team recommendations:** unresolved workload greater than 1.5 times the team average produces a high-priority workload-imbalance recommendation, suggesting below-average teammates as possible redistribution candidates and advising a review of role, availability and task complexity. Productivity below the historical mean generates a recommendation to review blockers, scope and workload distribution before drawing conclusions about an individual.
+
+The request validates project/member task counts, requires a role for supplied team members, and bounds the issue/member/history page sizes. The Jira sync reports missing due dates or role permissions as warnings rather than presenting them as known facts.
+
+#### Verification
+
+Run the API test suite in Docker:
+
+```bash
+docker compose exec -T api pytest -q /app/tests
+```
+
+The tests cover risk thresholds, roles and workload recommendations, productivity history, Jira authentication/error mapping, secure tenant URL validation, paginated issue fetching, Jira-to-assessment mapping, and incomplete Jira data.

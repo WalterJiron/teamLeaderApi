@@ -21,6 +21,7 @@ from app.modules.auth.dto.UserSessionTableDto import UserSessionTableDto
 from app.modules.auth.dto.UserTableDto import UserTableDto
 from app.modules.integrations.dto.GithubIntegrationTableDto import GithubIntegrationTableDto
 from app.modules.integrations.dto.GithubWebhookDeliveryTableDto import GithubWebhookDeliveryTableDto
+from app.modules.integrations.dto.JiraIntegrationTableDto import JiraIntegrationTableDto
 from app.modules.metrics.dto.AreaSnapshotTableDto import AreaSnapshotTableDto
 from app.modules.projects.dto.AreaTableDto import AreaTableDto
 from app.modules.projects.dto.ProjectTableDto import ProjectTableDto
