@@ -1,6 +1,8 @@
 from app.core.dependencies import (
     bearer_scheme,
     getAdminAuthService,
+    getAgentRepository,
+    getAgentService,
     getAuditRepository,
     getAuditService,
     getAuthRepository,
@@ -16,6 +18,7 @@ from app.core.dependencies import (
     getMetricService,
     getMfaRepository,
     getMfaService,
+    getN8nAgentClient,
     getOrganizationService,
     getOutboxRepository,
     getPasswordService,
@@ -32,6 +35,8 @@ from app.core.dependencies import (
 __all__ = [
     "bearer_scheme",
     "getAdminAuthService",
+    "getAgentRepository",
+    "getAgentService",
     "getAuditRepository",
     "getAuditService",
     "getAuthRepository",
@@ -47,6 +52,7 @@ __all__ = [
     "getMetricService",
     "getMfaRepository",
     "getMfaService",
+    "getN8nAgentClient",
     "getOrganizationService",
     "getOutboxRepository",
     "getPasswordService",
