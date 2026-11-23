@@ -42,6 +42,13 @@ class AuditService:
             "mfa_token",
             "recovery_code",
             "secret",
+            "webhook_secret",
+            "encrypted_webhook_secret",
+            "encrypted_access_token",
+            "github_token",
+            "pat",
+            "signature",
+            "x-hub-signature-256",
             "authorization",
             "totp_secret",
             "invitation_token",
@@ -82,6 +89,7 @@ class AuditService:
         previous_hash: str | None = None
         entry_hash: str | None = None
         if AppConfig.AUDIT_HASH_CHAIN_ENABLED:
+            await self.audit_repository.acquireChainLock()
             previous_hash = await self.audit_repository.getLastHash()
             canonical = json.dumps(
                 {

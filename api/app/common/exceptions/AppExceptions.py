@@ -110,6 +110,21 @@ class TooManyRequestsException(BaseAppException):
         )
 
 
+class PayloadTooLargeException(BaseAppException):
+
+    def __init__(self, detail: str = "Payload too large") -> None:
+        """Initializes an HTTP 413 Payload Too Large application exception.
+
+        Args:
+            detail (str, optional): Custom error message detailing the rejected payload.
+        """
+        super().__init__(
+            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+            code="PAYLOAD_TOO_LARGE",
+            message=detail
+        )
+
+
 class ServiceUnavailableException(BaseAppException):
 
     def __init__(self, detail: str = "Service unavailable") -> None:

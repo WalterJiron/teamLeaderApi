@@ -1,9 +1,11 @@
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.modules.auth.dto.AuthAuditLogTableDto import AuthAuditLogTableDto
 
 
 class AuditRepository:
+
+    AUDIT_CHAIN_LOCK_KEY: int = 0x544C4155444954
 
     def __init__(self, db_session: AsyncSession) -> None:
         """Initializes the repository with an asynchronous PostgreSQL session.
@@ -12,6 +14,18 @@ class AuditRepository:
             db_session (AsyncSession): Active SQLAlchemy async session.
         """
         self.db_session = db_session
+
+    async def acquireChainLock(self) -> None:
+        """Acquires a transaction-scoped PostgreSQL advisory lock for hash chain serialization.
+
+        Prevents concurrent audit appends from reading the same last hash,
+        which would cause chain forks. The lock is released automatically
+        when the transaction commits or rolls back.
+        """
+        await self.db_session.execute(
+            text("SELECT pg_advisory_xact_lock(:key)"),
+            {"key": self.AUDIT_CHAIN_LOCK_KEY},
+        )
 
     async def addLog(self, log: AuthAuditLogTableDto) -> AuthAuditLogTableDto:
         """Persists an audit log entry.

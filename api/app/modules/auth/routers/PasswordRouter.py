@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from app.common.schemas.ApiResponseSchema import ResponseSchema
 from app.core.AuthContext import AuthContext
-from app.core.DependencyContainer import getAuthService, getCurrentAuth
+from app.core.dependencies import getAuthService, getCurrentAuth
 from app.modules.auth.schemas.AuthSchema import (
     EmailChangeConfirmSchema,
     EmailChangeRequestSchema,

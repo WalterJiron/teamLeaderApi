@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query, status
 from app.common.schemas.ApiResponseSchema import PaginatedResponseSchema, PaginationInfo, ResponseSchema
 from app.core.AuthContext import AuthContext
-from app.core.DependencyContainer import (
+from app.core.dependencies import (
     getCurrentAuth,
     getOrganizationService,
     getRecoveryService,

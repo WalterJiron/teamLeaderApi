@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, status
 from app.common.schemas.ApiResponseSchema import ResponseSchema
-from app.core.DependencyContainer import getAuthService
+from app.core.dependencies import getAuthService
 from app.core.RateLimiter import RateLimiter
 from app.core.RequestContext import getClientIp
 from app.modules.auth.schemas.AuthSchema import (
