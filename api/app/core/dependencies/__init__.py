@@ -24,6 +24,8 @@ from app.core.dependencies.IntegrationDependencies import (
     getGithubApiClient,
     getGithubSyncService,
     getIntegrationRepository,
+    getJiraIntegrationRepository,
+    getJiraSyncService,
     getSecretEncryptionHelper,
     getSecurityAuditLogger,
 )
@@ -58,6 +60,8 @@ __all__ = [
     "getGithubApiClient",
     "getGithubSyncService",
     "getIntegrationRepository",
+    "getJiraIntegrationRepository",
+    "getJiraSyncService",
     "getMetricRepository",
     "getMetricService",
     "getMfaRepository",

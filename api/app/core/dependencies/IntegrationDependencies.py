@@ -6,8 +6,10 @@ from app.core.dependencies.MetricDependencies import getMetricService
 from app.core.dependencies.ProjectDependencies import getProjectRepository
 from app.modules.auth.service.AuditService import AuditService
 from app.modules.integrations.IntegrationRepository import IntegrationRepository
+from app.modules.integrations.JiraIntegrationRepository import JiraIntegrationRepository
 from app.modules.integrations.client.GithubApiClient import GithubApiClient
 from app.modules.integrations.service.GithubSyncService import GithubSyncService
+from app.modules.integrations.service.JiraSyncService import JiraSyncService
 from app.modules.integrations.utils.SecretEncryptionHelper import SecretEncryptionHelper
 from app.modules.integrations.utils.SecurityAuditLogger import SecurityAuditLogger
 from app.modules.metrics.service.MetricService import MetricService
@@ -26,6 +28,13 @@ def getIntegrationRepository(
         IntegrationRepository: GitHub integration persistence repository.
     """
     return IntegrationRepository(db_session=db_session)
+
+
+def getJiraIntegrationRepository(
+    db_session: AsyncSession = Depends(PostgresManager.getSession),
+) -> JiraIntegrationRepository:
+    """Provides a tenant-scoped Jira integration repository."""
+    return JiraIntegrationRepository(db_session=db_session)
 
 
 def getSecretEncryptionHelper() -> SecretEncryptionHelper:
@@ -91,4 +100,21 @@ def getGithubSyncService(
         secret_encryption_helper=secret_encryption_helper,
         metric_service=metric_service,
         security_audit_logger=security_audit_logger,
+    )
+
+
+def getJiraSyncService(
+    integration_repository: JiraIntegrationRepository = Depends(
+        getJiraIntegrationRepository
+    ),
+    project_repository: ProjectRepository = Depends(getProjectRepository),
+    secret_encryption_helper: SecretEncryptionHelper = Depends(
+        getSecretEncryptionHelper
+    ),
+) -> JiraSyncService:
+    """Provides Jira connection and project synchronization services."""
+    return JiraSyncService(
+        integration_repository=integration_repository,
+        project_repository=project_repository,
+        secret_encryption_helper=secret_encryption_helper,
     )
