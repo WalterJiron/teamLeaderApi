@@ -5,6 +5,7 @@ from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from app.core.AppConfig import AppConfig
 from app.core.PostgresManager import Base
+from app.modules.agent.dto.AgentCacheTableDto import AgentCacheTableDto
 from app.modules.auth.dto.AccountRecoveryRequestTableDto import AccountRecoveryRequestTableDto
 from app.modules.auth.dto.AuthAuditLogTableDto import AuthAuditLogTableDto
 from app.modules.auth.dto.AuthTokenTableDto import AuthTokenTableDto
