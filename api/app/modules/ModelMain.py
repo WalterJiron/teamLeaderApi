@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from app.core.AppConfig import AppConfig
+from app.modules.agent.AgentRouter import AgentRouter
 from app.modules.auth.routers.AdminAuthRouter import AdminAuthRouter
 from app.modules.auth.routers.AuthRouter import AuthRouter
 from app.modules.integrations.IntegrationRouter import IntegrationRouter
@@ -14,13 +15,15 @@ class ModelMain:
         Args:
             application (FastAPI): Active application instance to mount routers onto.
         """
-        auth_router = AuthRouter();
-        admin_auth_router = AdminAuthRouter();
-        integration_router = IntegrationRouter();
+        auth_router = AuthRouter()
+        admin_auth_router = AdminAuthRouter()
+        integration_router = IntegrationRouter()
+        agent_router = AgentRouter()
 
-        application.include_router(auth_router.router, prefix=AppConfig.API_V1_PREFIX);
-        application.include_router(admin_auth_router.router, prefix=AppConfig.API_V1_PREFIX);
-        application.include_router(integration_router.router, prefix=AppConfig.API_V1_PREFIX);
+        application.include_router(auth_router.router, prefix=AppConfig.API_V1_PREFIX)
+        application.include_router(admin_auth_router.router, prefix=AppConfig.API_V1_PREFIX)
+        application.include_router(integration_router.router, prefix=AppConfig.API_V1_PREFIX)
+        application.include_router(agent_router.router, prefix=AppConfig.API_V1_PREFIX)
 
 
 def registerModuleRouters(application: FastAPI) -> None:
