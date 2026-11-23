@@ -82,8 +82,7 @@ class AppSettings(BaseSettings):
     RECOVERY_EMAIL_URL: str = "http://localhost:3000/confirm-recovery-email"
     INVITATION_URL: str = "http://localhost:3000/accept-invitation"
 
-    N8N_AGENT_WEBHOOK_URL: str = "http://localhost:5678/webhook/agent"
-    N8N_INTERNAL_API_KEY: str = "CHANGE_ME_INTERNAL_KEY"
+    N8N_AGENT_CHAT_URL: str = "http://localhost:5678/webhook/teamleader-ai-agent-chat/chat"
 
 
 AppConfig = AppSettings()
